@@ -1,7 +1,11 @@
 import 'dart:io';
 
 main() {
-  printColoredText(text: 'Hello World', color: AnsiColorCode.red);
+  printColoredText(
+    text: 'Hello World',
+    color: AnsiColorCode.black,
+    bgColor: AnsiColorCode.white,
+  );
   print('\n############################################################\n');
   printColorChart();
   print('\n************************************************************\n');
@@ -12,29 +16,66 @@ main() {
   printAllBackgroundColors();
 }
 
-//! Foreground
+const RC = '\u001b[0m'; // Reset foreground and background colors. --> $RC
+const R = '\u001b[7m'; // Invert foreground to background. --> $R
+const U = '\u001b[4m'; // Underline. --> $U
+const B = '\u001b[1m'; // Bold. --> $B
+const I = '\u001b[3m'; // Italic. --> $I
+const S = '\u001b[9m'; // Strikethrough the text. --> $S
+
+// 256 Colors
+String fg(int n) =>
+    '\u001b[38;5;${n}m'; // Set a foreground color. --> ${fg(40)} //Sets a green color.
+String bg(int n) =>
+    '\u001b[48;5;${n}m'; // Set a background color. --> ${bg(196)} //Sets a red color.
+
+// RGB Colors
+String rgbFg(int r, int g, int b) =>
+    '\u001b[38;2;$r;$g;${b}m'; // Set a RGB foreground color. --> ${rgbfg(0,255,0)} //Sets a green color.
+String rgbBg(int r, int g, int b) =>
+    '\u001b[48;2;$r;$g;${b}m'; // Set a RGB background color. --> ${rgbbg(255,0,0)} //Sets a red color.
+
 /// Colored Console Message
 void printColoredText({
   required String text,
   required AnsiColorCode color,
+  AnsiColorCode? bgColor,
 }) {
   String code = color.index.toString();
-  stdout.write(
-    '\x1B[38;5;${code}m${text}\x1B[0m',
-  );
+  String bgCode = bgColor?.index.toString() ?? '';
+
+  if (bgColor == null) {
+    stdout.write('\x1B[38;5;${code}m$text\x1B[0m');
+  } else {
+    stdout.write('\x1B[38;5;${code}m\x1B[48;5;${bgCode}m$text\x1B[0m');
+  }
   print('');
 }
 
-
+//! Foreground
 /// All Colors Console Chart
 void printColorChart() {
-  for (int i = 0; i < 16; i++) {
+/*   for (int i = 0; i < 16; i++) {
     for (int j = 0; j < 16; j++) {
       String code = (i * 16 + j).toString();
 
       stdout.write('\x1B[38;5;${code}m ${code}'.padRight(5));
     }
     print('\x1B[0m');
+  } */
+
+  for (int i = 0; i < 256; i++) {
+    stdout.write('\x1B[38;5;${i}m$i   ');
+    if (i == 15 ||
+        i == 51 ||
+        i == 87 ||
+        i == 123 ||
+        i == 159 ||
+        i == 195 ||
+        i == 231 ||
+        i == 255) {
+      print('');
+    }
   }
 }
 
@@ -48,7 +89,6 @@ void printAllColors() {
     print('');
   }
 }
-
 
 //! Background
 /// Background Colors Text Chart
